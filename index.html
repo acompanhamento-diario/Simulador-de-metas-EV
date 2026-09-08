@@ -22,31 +22,27 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    /* Cores dos Níveis Robbyson */
-    .badge-g1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); } /* Azul */
-    .badge-g2 { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); } /* Verde */
-    .badge-g3 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); } /* Amarelo */
-    .badge-g4 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); } /* Vermelho */
+    .badge-g1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-g2 { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .badge-g3 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-g4 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 md:p-6">
 
   <div class="w-full max-w-3xl space-y-6">
     
-    <!-- Cabeçalho -->
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-2">
         <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
         Robbyson Helper & Performance
       </div>
       <h1 class="text-3xl font-extrabold tracking-tight gradient-text">Lançamento Diário de Produção</h1>
-      <p class="text-slate-400 text-sm">Acompanhamento oficial de Nível Robbyson (Ciclo 26 a 25 - Mensal)</p>
+      <p class="text-slate-400 text-sm">Acompanhamento oficial de Nível Robbyson (Ciclo 26 a 25)</p>
     </div>
 
-    <!-- Card Principal -->
     <div class="glass-card rounded-2xl p-6 shadow-2xl space-y-6">
 
-      <!-- Informações do Ciclo -->
       <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700/50">
         <div>
           <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Período Ativo</span>
@@ -58,7 +54,6 @@
         </div>
       </div>
 
-      <!-- Seleção de Canal -->
       <div class="space-y-2">
         <label class="text-xs font-semibold uppercase text-slate-300">Canal de Atuação</label>
         <select id="canal" onchange="gerarCamposDias()" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
@@ -68,7 +63,6 @@
         </select>
       </div>
 
-      <!-- Seção de Lançamento Dia a Dia -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <label class="text-xs font-semibold uppercase text-slate-300">Entregas e Status do Período</label>
@@ -76,11 +70,9 @@
         </div>
         
         <div id="gridDias" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-72 overflow-y-auto pr-1">
-          <!-- Gerado via JS -->
         </div>
       </div>
 
-      <!-- Barra de Progresso -->
       <div class="space-y-2 pt-2">
         <div class="flex justify-between text-xs font-semibold">
           <span class="text-slate-400">Atingimento Atual do Ciclo</span>
@@ -91,7 +83,6 @@
         </div>
       </div>
 
-      <!-- Cards de Métricas -->
       <div class="grid grid-cols-2 gap-3">
         
         <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
@@ -150,7 +141,7 @@
     var cur = new Date(ciclo.inicio.getTime());
     
     while (cur <= ciclo.fim) {
-      if (cur.getDay() !== 0 && cur.getDay() !== 6) { // Segunda a Sexta
+      if (cur.getDay() !== 0 && cur.getDay() !== 6) {
         diasUteis.push(new Date(cur.getTime()));
       }
       cur.setDate(cur.getDate() + 1);
@@ -159,7 +150,7 @@
   }
 
   function obterMetaDoDia(dataDia, canal) {
-    var dayOfWeek = dataDia.getDay(); // 1 = Seg, 3 = Qua
+    var dayOfWeek = dataDia.getDay();
     var isSegOuQua = (dayOfWeek === 1 || dayOfWeek === 3);
 
     if (canal === 'email') {
@@ -167,7 +158,6 @@
     } else if (canal === 'oe') {
       return isSegOuQua ? 27 : 30;
     } else {
-      // Reclame Aqui (RA)
       return isSegOuQua ? 11 : 14.33;
     }
   }
@@ -197,8 +187,8 @@
         
         <select onchange="alternarStatusDia(this, ${index})" data-status-index="${index}" class="status-dia w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-blue-500 transition">
           <option value="trabalhado">Trabalhado</option>
-          <option value="considerado">Considerado (Sume)</option>
-          <option value="atestado">Atestado (Conta)</option>
+          <option value="considerado">Considerado (Aprovado)</option>
+          <option value="atestado">Atestado (Soma Meta)</option>
         </select>
 
         <input type="number" min="0" placeholder="0" data-dia-index="${index}" oninput="calcular()" 
@@ -248,6 +238,7 @@
       } else {
         metaTotalCiclo += metaDia;
 
+        // O Robbyson cobra a meta acumulada de todos os dias passados no calendário
         if (dZero <= hojeZero) {
           metaAcumuladaEsperadaAteHoje += metaDia;
         }
@@ -272,13 +263,12 @@
     var saldo = Math.max(0, Math.round(metaTotalCiclo) - acumuladoRealizado);
     var ritmoNecessario = (diasRestantesUteis > 0) ? Math.ceil(saldo / diasRestantesUteis) : 0;
 
-    // FÓRMULA OFICIAL ROBBYSON: Acumulado Realizado / Meta Acumulada Esperada até Hoje
+    // FÓRMULA OFICIAL ROBBYSON
     var percentualAtingimento = 0;
     if (metaAcumuladaEsperadaAteHoje > 0) {
       percentualAtingimento = (acumuladoRealizado / metaAcumuladaEsperadaAteHoje) * 100;
     }
 
-    // Classificação Robbyson
     var grupo = "G4 - MONTANHAS", classeBadge = "badge-g4";
     if (percentualAtingimento >= 84) { 
       grupo = "G1 - ESTRELAS"; 
