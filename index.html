@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador de Meta Diária</title>
+  <title>Simulador e Lançador de Metas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -22,6 +22,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    /* Cores dos Níveis Robbyson */
     .badge-g1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
     .badge-g2 { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
     .badge-g3 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
@@ -32,92 +33,177 @@
 
   <div class="w-full max-w-3xl space-y-6">
     
-    <div class="text-center space-y-2">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-2">
-        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-        Robbyson Helper & Performance
+    <!-- TELA DE LOGIN -->
+    <div id="telaLogin" class="glass-card rounded-2xl p-8 max-w-md mx-auto space-y-6 shadow-2xl">
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-2">
+          <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+          Acesso ao Sistema
+        </div>
+        <h2 class="text-2xl font-bold gradient-text">Entrar no Acompanhamento</h2>
+        <p class="text-xs text-slate-400">Informe seu nome ou RE para carregar ou salvar seus dados de produção.</p>
       </div>
-      <h1 class="text-3xl font-extrabold tracking-tight gradient-text">Lançamento Diário de Produção</h1>
-      <p class="text-slate-400 text-sm">Acompanhamento oficial de Nível Robbyson (Ciclo 26 a 25)</p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold uppercase text-slate-300 block mb-1">Nome ou RE do Assistente</label>
+          <input type="text" id="inputUsuario" placeholder="Ex: Maria Silva ou RE12345" 
+            class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+        </div>
+        <button onclick="fazerLogin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg transition">
+          Entrar e Carregar Produção
+        </button>
+      </div>
     </div>
 
-    <div class="glass-card rounded-2xl p-6 shadow-2xl space-y-6">
-
-      <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700/50">
+    <!-- PAINEL PRINCIPAL (ESCONDIDO POR PADRÃO) -->
+    <div id="painelPrincipal" class="space-y-6 hidden">
+      
+      <!-- Cabeçalho -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Período Ativo</span>
-          <span id="labelPeriodo" class="text-sm font-medium text-slate-200">Carregando...</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-1">
+            <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+            Robbyson Helper & Performance
+          </div>
+          <h1 class="text-2xl font-extrabold tracking-tight gradient-text">Lançamento Diário de Produção</h1>
         </div>
-        <div class="text-right">
-          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Dias Restantes Úteis</span>
-          <span id="valDiasRestantes" class="text-lg font-bold text-blue-400">0 dias</span>
+
+        <!-- Perfil do Usuário Logado -->
+        <div class="flex items-center gap-3 bg-slate-800/60 p-2.5 px-4 rounded-xl border border-slate-700/60 self-start md:self-auto">
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Assistente Logado</span>
+            <span id="nomeUsuarioLogado" class="text-sm font-bold text-slate-200"></span>
+          </div>
+          <button onclick="deslogar()" class="text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 rounded-lg transition border border-red-500/20">
+            Sair
+          </button>
         </div>
       </div>
 
-      <div class="space-y-2">
-        <label class="text-xs font-semibold uppercase text-slate-300">Canal de Atuação</label>
-        <select id="canal" onchange="gerarCamposDias()" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
-          <option value="email">E-mail (Ter/Qui/Sex: 121 | Seg/Qua: 115)</option>
-          <option value="ra">Reclame Aqui (Ter/Qui/Sex: 14 | Seg/Qua: 11)</option>
-          <option value="oe">OE (Ter/Qui/Sex: 30 | Seg/Qua: 27)</option>
-        </select>
-      </div>
+      <!-- Card Principal -->
+      <div class="glass-card rounded-2xl p-6 shadow-2xl space-y-6">
 
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <label class="text-xs font-semibold uppercase text-slate-300">Entregas e Status do Período</label>
-          <span class="text-xs text-slate-500">Dias úteis do mês (Seg a Sex)</span>
-        </div>
-        
-        <div id="gridDias" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-72 overflow-y-auto pr-1">
-        </div>
-      </div>
-
-      <div class="space-y-2 pt-2">
-        <div class="flex justify-between text-xs font-semibold">
-          <span class="text-slate-400">Atingimento Atual do Ciclo</span>
-          <span id="percentualTexto" class="text-slate-200">0%</span>
-        </div>
-        <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
-          <div id="progressBar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        
-        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
-          <span class="text-xs font-medium text-slate-400 block">Produção Acumulada</span>
-          <span id="acumulado" class="text-xl font-bold text-slate-100">0</span>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
-          <span class="text-xs font-medium text-slate-400 block">Falta p/ Meta (100%)</span>
-          <span id="saldoFalta" class="text-xl font-bold text-slate-100">0</span>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
-          <span class="text-xs font-medium text-slate-400 block">Meta Diária Restante</span>
-          <span id="ritmoNecessario" class="text-xl font-bold text-blue-400">0 /dia</span>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
-          <span class="text-xs font-medium text-slate-400 block">Nível Robbyson</span>
-          <div class="pt-0.5">
-            <span id="badgeGrupo" class="inline-block px-3 py-1 rounded-full text-xs font-bold badge-g4">G4 - MONTANHAS</span>
+        <!-- Informações do Ciclo -->
+        <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700/50">
+          <div>
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Período Ativo</span>
+            <span id="labelPeriodo" class="text-sm font-medium text-slate-200">Carregando...</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Dias Restantes Úteis</span>
+            <span id="valDiasRestantes" class="text-lg font-bold text-blue-400">0 dias</span>
           </div>
         </div>
 
+        <!-- Seleção de Canal -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold uppercase text-slate-300">Canal de Atuação</label>
+          <select id="canal" onchange="alterarCanal()" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+            <option value="email">E-mail (Ter/Qui/Sex: 121 | Seg/Qua: 115)</option>
+            <option value="ra">Reclame Aqui (Ter/Qui/Sex: 14 | Seg/Qua: 11)</option>
+            <option value="oe">OE (Ter/Qui/Sex: 30 | Seg/Qua: 27)</option>
+          </select>
+        </div>
+
+        <!-- Seção de Lançamento Dia a Dia -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold uppercase text-slate-300">Entregas e Status do Período</label>
+            <span class="text-xs text-emerald-400 flex items-center gap-1 font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Salvamento automático
+            </span>
+          </div>
+          
+          <div id="gridDias" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-72 overflow-y-auto pr-1">
+            <!-- Gerado via JS -->
+          </div>
+        </div>
+
+        <!-- Barra de Progresso -->
+        <div class="space-y-2 pt-2">
+          <div class="flex justify-between text-xs font-semibold">
+            <span class="text-slate-400">Atingimento Atual do Ciclo</span>
+            <span id="percentualTexto" class="text-slate-200">0%</span>
+          </div>
+          <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Cards de Métricas -->
+        <div class="grid grid-cols-2 gap-3">
+          
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
+            <span class="text-xs font-medium text-slate-400 block">Produção Acumulada</span>
+            <span id="acumulado" class="text-xl font-bold text-slate-100">0</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
+            <span class="text-xs font-medium text-slate-400 block">Falta p/ Meta (100%)</span>
+            <span id="saldoFalta" class="text-xl font-bold text-slate-100">0</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
+            <span class="text-xs font-medium text-slate-400 block">Meta Diária Restante</span>
+            <span id="ritmoNecessario" class="text-xl font-bold text-blue-400">0 /dia</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/30 space-y-1">
+            <span class="text-xs font-medium text-slate-400 block">Nível Robbyson</span>
+            <div class="pt-0.5">
+              <span id="badgeGrupo" class="inline-block px-3 py-1 rounded-full text-xs font-bold badge-g4">G4 - MONTANHAS</span>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
-    </div>
+      <div class="text-center text-xs text-slate-500">
+        Níveis: G1 - ESTRELAS (Azul) | G2 - NUVENS (Verde) | G3 - ÁGUIAS (Amarelo) | G4 - MONTANHAS (Vermelho)
+      </div>
 
-    <div class="text-center text-xs text-slate-500">
-      Níveis: G1 - ESTRELAS (Azul) | G2 - NUVENS (Verde) | G3 - ÁGUIAS (Amarelo) | G4 - MONTANHAS (Vermelho)
     </div>
 
   </div>
 
 <script>
+  var usuarioAtual = "";
+
+  function fazerLogin() {
+    var input = document.getElementById('inputUsuario').value.trim();
+    if (!input) {
+      alert("Por favor, digite seu Nome ou RE para entrar.");
+      return;
+    }
+    usuarioAtual = input.toLowerCase().replace(/\s+/g, '_');
+    localStorage.setItem('usuarioAtivoRobbyson', usuarioAtual);
+    localStorage.setItem('nomeFormatadoRobbyson_' + usuarioAtual, input);
+
+    exibirPainel();
+  }
+
+  function deslogar() {
+    localStorage.removeItem('usuarioAtivoRobbyson');
+    document.getElementById('painelPrincipal').classList.add('hidden');
+    document.getElementById('telaLogin').classList.remove('hidden');
+    document.getElementById('inputUsuario').value = '';
+  }
+
+  function exibirPainel() {
+    document.getElementById('telaLogin').classList.add('hidden');
+    document.getElementById('painelPrincipal').classList.remove('hidden');
+    
+    var nomeExibicao = localStorage.getItem('nomeFormatadoRobbyson_' + usuarioAtual) || usuarioAtual;
+    document.getElementById('nomeUsuarioLogado').innerText = nomeExibicao;
+
+    var canalSalvo = localStorage.getItem('canal_' + usuarioAtual) || 'email';
+    document.getElementById('canal').value = canalSalvo;
+
+    gerarCamposDias();
+  }
+
   function obterCicloAtual(hoje) {
     var inicio, fim;
     var ano = hoje.getFullYear();
@@ -162,6 +248,14 @@
     }
   }
 
+  function alterarCanal() {
+    var canal = document.getElementById('canal').value;
+    if (usuarioAtual) {
+      localStorage.setItem('canal_' + usuarioAtual, canal);
+    }
+    gerarCamposDias();
+  }
+
   function gerarCamposDias() {
     var canal = document.getElementById('canal').value;
     var diasUteis = obterDiasUteisPeriodo();
@@ -170,11 +264,19 @@
 
     var hojeStr = new Date().toDateString();
 
+    var chaveSalva = 'dados_' + usuarioAtual + '_' + canal;
+    var dadosSalvos = JSON.parse(localStorage.getItem(chaveSalva) || '{}');
+
     diasUteis.forEach(function(dataDia, index) {
       var isHoje = dataDia.toDateString() === hojeStr;
       var dataFmt = dataDia.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       var diaNome = dataDia.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
       var metaDia = obterMetaDoDia(dataDia, canal);
+
+      var statusSalvo = dadosSalvos[index] ? dadosSalvos[index].status : 'trabalhado';
+      var qtdSalva = (dadosSalvos[index] && dadosSalvos[index].qtd !== undefined) ? dadosSalvos[index].qtd : '';
+
+      var isSemTrabalho = (statusSalvo === 'considerado' || statusSalvo === 'feriado' || statusSalvo === 'atestado');
 
       var div = document.createElement('div');
       div.className = "bg-slate-900/60 border " + (isHoje ? "border-blue-500/80 bg-blue-500/5" : "border-slate-800") + " p-2.5 rounded-xl text-center space-y-2";
@@ -186,13 +288,15 @@
         </div>
         
         <select onchange="alternarStatusDia(this, ${index})" data-status-index="${index}" class="status-dia w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-blue-500 transition">
-          <option value="trabalhado">Trabalhado</option>
-          <option value="considerado">Considerado (Aprovado)</option>
-          <option value="atestado">Atestado (Soma Meta)</option>
+          <option value="trabalhado" ${statusSalvo === 'trabalhado' ? 'selected' : ''}>Trabalhado</option>
+          <option value="feriado" ${statusSalvo === 'feriado' ? 'selected' : ''}>Feriado (Não cobra)</option>
+          <option value="considerado" ${statusSalvo === 'considerado' ? 'selected' : ''}>Considerado (Aprovado)</option>
+          <option value="atestado" ${statusSalvo === 'atestado' ? 'selected' : ''}>Atestado (Soma Meta)</option>
         </select>
 
-        <input type="number" min="0" placeholder="0" data-dia-index="${index}" oninput="calcular()" 
-          class="qtd-dia w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1.5 text-center text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+        <input type="number" min="0" placeholder="0" value="${qtdSalva}" data-dia-index="${index}" oninput="calcular()" 
+          class="qtd-dia w-full bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1.5 text-center text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition ${isSemTrabalho ? 'opacity-40 cursor-not-allowed' : ''}"
+          ${isSemTrabalho ? 'disabled' : ''}>
       `;
       grid.appendChild(div);
     });
@@ -202,7 +306,8 @@
 
   function alternarStatusDia(selectElem, index) {
     var inputQtd = document.querySelector(`input[data-dia-index="${index}"]`);
-    if (selectElem.value === 'considerado' || selectElem.value === 'atestado') {
+    var st = selectElem.value;
+    if (st === 'considerado' || st === 'feriado' || st === 'atestado') {
       inputQtd.value = '';
       inputQtd.disabled = true;
       inputQtd.classList.add('opacity-40', 'cursor-not-allowed');
@@ -211,6 +316,24 @@
       inputQtd.classList.remove('opacity-40', 'cursor-not-allowed');
     }
     calcular();
+  }
+
+  function salvarDadosNoStorage() {
+    if (!usuarioAtual) return;
+    var canal = document.getElementById('canal').value;
+    var inputsQtd = document.querySelectorAll('.qtd-dia');
+    var selectsStatus = document.querySelectorAll('.status-dia');
+
+    var dadosParaSalvar = {};
+    inputsQtd.forEach(function(input, idx) {
+      dadosParaSalvar[idx] = {
+        qtd: input.value,
+        status: selectsStatus[idx].value
+      };
+    });
+
+    var chaveSalva = 'dados_' + usuarioAtual + '_' + canal;
+    localStorage.setItem(chaveSalva, JSON.stringify(dadosParaSalvar));
   }
 
   function calcular() {
@@ -223,7 +346,7 @@
     var acumuladoRealizado = 0;
     var metaAcumuladaEsperadaAteHoje = 0;
     var metaTotalCiclo = 0;
-    var diasConsiderados = 0;
+    var diasDescontados = 0;
 
     var hojeZero = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
 
@@ -233,12 +356,12 @@
       var val = parseFloat(inputsQtd[idx].value) || 0;
       var metaDia = obterMetaDoDia(d, canal);
 
-      if (status === 'considerado') {
-        diasConsiderados++;
+      // Feriado e Considerado descontam do total de dias e da meta cobrada
+      if (status === 'considerado' || status === 'feriado') {
+        diasDescontados++;
       } else {
         metaTotalCiclo += metaDia;
 
-        // O Robbyson cobra a meta acumulada de todos os dias passados no calendário
         if (dZero <= hojeZero) {
           metaAcumuladaEsperadaAteHoje += metaDia;
         }
@@ -256,14 +379,14 @@
     });
 
     var diasTotaisBrutos = diasUteis.length;
-    var diasTotaisAjustados = Math.max(1, diasTotaisBrutos - diasConsiderados);
-    var diasDecorridosAjustados = Math.max(1, diasDecorridosBrutos - diasConsiderados);
+    var diasTotaisAjustados = Math.max(1, diasTotaisBrutos - diasDescontados);
+    var diasDecorridosAjustados = Math.max(1, diasDecorridosBrutos - diasDescontados);
     var diasRestantesUteis = Math.max(0, diasTotaisAjustados - diasDecorridosAjustados);
 
     var saldo = Math.max(0, Math.round(metaTotalCiclo) - acumuladoRealizado);
     var ritmoNecessario = (diasRestantesUteis > 0) ? Math.ceil(saldo / diasRestantesUteis) : 0;
 
-    // FÓRMULA OFICIAL ROBBYSON
+    // FÓRMULA ROBBYSON
     var percentualAtingimento = 0;
     if (metaAcumuladaEsperadaAteHoje > 0) {
       percentualAtingimento = (acumuladoRealizado / metaAcumuladaEsperadaAteHoje) * 100;
@@ -297,9 +420,17 @@
     var badge = document.getElementById('badgeGrupo');
     badge.innerText = grupo;
     badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold " + classeBadge;
+
+    salvarDadosNoStorage();
   }
 
-  window.onload = gerarCamposDias;
+  window.onload = function() {
+    var usuarioSalvo = localStorage.getItem('usuarioAtivoRobbyson');
+    if (usuarioSalvo) {
+      usuarioAtual = usuarioSalvo;
+      exibirPainel();
+    }
+  };
 </script>
 </body>
 </html>
