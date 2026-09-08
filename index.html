@@ -343,7 +343,7 @@
     var selectsStatus = document.querySelectorAll('.status-dia');
 
     var acumuladoRealizado = 0;
-    var metaRobbysonOficialAteHoje = 0;
+    var metaRobbysonEsperadaAteHoje = 0;
     var metaTotalCiclo = 0;
     var diasDescontados = 0;
 
@@ -355,19 +355,19 @@
       var val = parseFloat(inputsQtd[idx].value) || 0;
       var metaDia = obterMetaDoDia(d, canal);
 
-      // REGRA OFICIAL ROBBYSON: A meta do calendário corre todos os dias passados até HOJE sem abater folgas
-      if (dZero <= hojeZero) {
-        metaRobbysonOficialAteHoje += metaDia;
-      }
-
       if (status === 'considerado' || status === 'feriado') {
         diasDescontados++;
       } else {
         metaTotalCiclo += metaDia;
-      }
 
-      if (status === 'trabalhado' && !isNaN(val) && val > 0) {
-        acumuladoRealizado += val;
+        // REGRA OFICIAL ROBBYSON: Dias considerados/feriados ABATEM a meta cobrada até hoje
+        if (dZero <= hojeZero) {
+          metaRobbysonEsperadaAteHoje += metaDia;
+        }
+
+        if (status === 'trabalhado' && !isNaN(val) && val > 0) {
+          acumuladoRealizado += val;
+        }
       }
     });
 
@@ -385,10 +385,10 @@
     var saldo = Math.max(0, Math.round(metaTotalCiclo) - acumuladoRealizado);
     var ritmoNecessario = (diasRestantesUteis > 0) ? Math.ceil(saldo / diasRestantesUteis) : 0;
 
-    // FÓRMULA OFICIAL ROBBYSON: Acumulado Realizado / Meta do Calendário até Hoje
+    // FÓRMULA OFICIAL ROBBYSON: Acumulado Realizado / Meta do Calendário com Desconto de Folgas Aprovadas
     var percentualAtingimento = 0;
-    if (metaRobbysonOficialAteHoje > 0) {
-      percentualAtingimento = (acumuladoRealizado / metaRobbysonOficialAteHoje) * 100;
+    if (metaRobbysonEsperadaAteHoje > 0) {
+      percentualAtingimento = (acumuladoRealizado / metaRobbysonEsperadaAteHoje) * 100;
     }
 
     var grupo = "G4 - MONTANHAS", classeBadge = "badge-g4";
