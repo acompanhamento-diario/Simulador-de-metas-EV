@@ -22,7 +22,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    /* Cores dos Níveis Robbyson */
     .badge-g1 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
     .badge-g2 { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
     .badge-g3 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
@@ -56,7 +55,7 @@
       </div>
     </div>
 
-    <!-- PAINEL PRINCIPAL (ESCONDIDO POR PADRÃO) -->
+    <!-- PAINEL PRINCIPAL -->
     <div id="painelPrincipal" class="space-y-6 hidden">
       
       <!-- Cabeçalho -->
@@ -123,7 +122,7 @@
         <!-- Barra de Progresso -->
         <div class="space-y-2 pt-2">
           <div class="flex justify-between text-xs font-semibold">
-            <span class="text-slate-400">Atingimento Atual do Ciclo</span>
+            <span class="text-slate-400">Atingimento Atual do Ciclo (Robbyson)</span>
             <span id="percentualTexto" class="text-slate-200">0%</span>
           </div>
           <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
@@ -344,7 +343,7 @@
     var selectsStatus = document.querySelectorAll('.status-dia');
 
     var acumuladoRealizado = 0;
-    var metaAcumuladaEsperadaAteHoje = 0;
+    var metaRobbysonOficialAteHoje = 0;
     var metaTotalCiclo = 0;
     var diasDescontados = 0;
 
@@ -356,19 +355,19 @@
       var val = parseFloat(inputsQtd[idx].value) || 0;
       var metaDia = obterMetaDoDia(d, canal);
 
-      // Feriado e Considerado descontam do total de dias e da meta cobrada
+      // REGRA OFICIAL ROBBYSON: A meta do calendário corre todos os dias passados até HOJE sem abater folgas
+      if (dZero <= hojeZero) {
+        metaRobbysonOficialAteHoje += metaDia;
+      }
+
       if (status === 'considerado' || status === 'feriado') {
         diasDescontados++;
       } else {
         metaTotalCiclo += metaDia;
+      }
 
-        if (dZero <= hojeZero) {
-          metaAcumuladaEsperadaAteHoje += metaDia;
-        }
-
-        if (status === 'trabalhado' && !isNaN(val) && val > 0) {
-          acumuladoRealizado += val;
-        }
+      if (status === 'trabalhado' && !isNaN(val) && val > 0) {
+        acumuladoRealizado += val;
       }
     });
 
@@ -386,10 +385,10 @@
     var saldo = Math.max(0, Math.round(metaTotalCiclo) - acumuladoRealizado);
     var ritmoNecessario = (diasRestantesUteis > 0) ? Math.ceil(saldo / diasRestantesUteis) : 0;
 
-    // FÓRMULA ROBBYSON
+    // FÓRMULA OFICIAL ROBBYSON: Acumulado Realizado / Meta do Calendário até Hoje
     var percentualAtingimento = 0;
-    if (metaAcumuladaEsperadaAteHoje > 0) {
-      percentualAtingimento = (acumuladoRealizado / metaAcumuladaEsperadaAteHoje) * 100;
+    if (metaRobbysonOficialAteHoje > 0) {
+      percentualAtingimento = (acumuladoRealizado / metaRobbysonOficialAteHoje) * 100;
     }
 
     var grupo = "G4 - MONTANHAS", classeBadge = "badge-g4";
